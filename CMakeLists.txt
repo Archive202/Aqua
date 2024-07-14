@@ -1,14 +1,12 @@
 cmake_minimum_required(VERSION 3.14)
-project(Aqua)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_CXX_STANDARD_REQUIRED on)
 
-# 添加 include 目录到包含路径
+project(Aqua)
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-# 添加库
-add_library(Aqua src/Tensor.cpp)
+add_library(Tensor INTERFACE)
 
-# 指定头文件目录
-target_include_directories(Aqua PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(Tensor INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include/Aqua)
