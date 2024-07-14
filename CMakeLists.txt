@@ -1,11 +1,12 @@
 cmake_minimum_required(VERSION 3.14)
 project(Aqua)
 
-set(CMAKE_INCLUDE_CURRENT_DIR on)
+# 添加头文件目录
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-file(GLOB_RECURSE HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/Aqua/*.h)
-file(GLOB_RECURSE SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
+# 创建静态库或动态库
+add_library(MyLibrary STATIC src/Tensor.cpp)
 
-add_library(Aqua STATIC ${HEADER_FILES} ${SOURCE_FILES})
-
-target_include_directories(Aqua PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+# 安装目标
+install(TARGETS MyLibrary DESTINATION lib)
+install(DIRECTORY include/ DESTINATION include)
