@@ -1,4 +1,4 @@
-cmake_minimum_required(3.14)
+cmake_minimum_required(VERSION 3.14)
 project(Aqua)
 
 set(CMAKE_INCLUDE_CURRENT_DIR on)
