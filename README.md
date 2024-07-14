@@ -1,7 +1,5 @@
 # Aqua
 
----
-
 ## Introduction
 
 This is a C++ library providing tensor variables and calculation of tensor, which can be used to implement neural networks
