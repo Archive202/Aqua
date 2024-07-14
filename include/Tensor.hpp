@@ -21,32 +21,50 @@ namespace Aqua {
         using DataType = typename TensorData<T, N>::type;
 
         Tensor() : data() {}
-        Tensor(const DataType& initData) : data(initData) {}
-
-        Tensor(std::initializer_list<typename TensorData<T, N>::type> initList) {
-            data = DataType(initList);
-        }
+        Tensor(std::initializer_list<typename TensorData<T, N-1>::type> list) : data(list) {}
 
         ~Tensor() {}
-        
+
         const DataType& getData() const {
             return data;
         }
 
+        template<typename... Args>
+        T& at(Args... args) {
+            return accessElement(data, args...);
+        }
+
         void disp() const {
-            if constexpr (N == 2) {
-                for (const auto& row : data) {
-                    for (const auto& elem : row) {
-                        std::cout << elem << " ";
-                    }
-                    std::cout << std::endl;
-                }
-            } else {
-                std::cout << "Shape Error!" << std::endl;
-            }
+            printVector(data);
+            std::cout << std::endl;
         }
 
     private:
         DataType data;
+
+        template<typename U>
+        void printVector(const U& elem) const {
+            std::cout << elem;
+        }
+
+        template<typename U>
+        void printVector(const std::vector<U>& vec) const {
+            std::cout << "[";
+            for (const auto& elem : vec) {
+                printVector(elem);
+                if (&elem != &vec.back()) std::cout << ", ";
+            }
+            std::cout << "]";
+        }
+
+        template<typename U, typename... Args>
+        auto& accessElement(std::vector<U>& vec, size_t index, Args... args) {
+            return accessElement(vec[index], args...);
+        }
+
+        template<typename U>
+        U& accessElement(U& elem) {
+            return elem;
+        }
     };
 }

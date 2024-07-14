@@ -4,30 +4,45 @@ This is a C++ library providing tensor variables and calculation of tensor, whic
 
 ## Usage
 
+### Import
+
+```cpp
+#include <Tensor.hpp>
+```
+
 ### Declaration
 
 ```cpp
-Aqua::Tensor t<variable_type, num_of_dimension>;
-```
-
-Example:
-
-```cpp
+// Aqua::Tensor t<variable_type, num_of_dimension>;
 Aqua::Tensor t<double, 2>;
 ```
 
 
 ### Assignment
-A tensor variable can be assignmented by a vector variable.
-
-Example:
 
 ```cpp
-std::vector<std::vector<double>> data = {
+Aqua::Tensor t<double, 2> t = {
     {1, 2, 3},
     {4, 5, 6}
 };
+```
 
-Aqua::Tensor t<double, 2> = data;
+### Operations
 
+#### Outputting
+```cpp
+Tensor<int, 3> t = {{{1, 2, 3}, {4, 5, 6}}, {{1, 2, 3}, {4, 5, 6}}};
+t.disp();
+
+// Outputs:
+// [[[1, 2, 3], [4, 5, 6]], [[1, 2, 3], [4, 5, 6]]]
+```
+
+#### Element Accessing
+```cpp
+Tensor<int, 3> t = {{{1, 2, 3}, {4, 5, 6}}, {{1, 2, 3}, {4, 5, 6}}};
+cout << t.at(0, 1, 2);
+
+// Outputs:
+// 6
 ```
