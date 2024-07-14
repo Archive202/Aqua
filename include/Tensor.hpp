@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <vector>
+#include <initializer_list>
 
 namespace Aqua {
     template<typename T, size_t N>
@@ -18,9 +19,13 @@ namespace Aqua {
     class Tensor {
     public:
         using DataType = typename TensorData<T, N>::type;
-        
+
         Tensor() : data() {}
         Tensor(const DataType& initData) : data(initData) {}
+
+        Tensor(std::initializer_list<typename TensorData<T, N>::type> initList) {
+            data = DataType(initList);
+        }
 
         ~Tensor() {}
         
