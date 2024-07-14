@@ -1,12 +1,16 @@
 cmake_minimum_required(VERSION 3.14)
 project(Aqua)
 
-# 添加头文件目录
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+# 设置 C++ 标准
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# 创建静态库或动态库
-add_library(Aqua STATIC src/Tensor.cpp)
+# 添加库
+add_library(Aqua STATIC src/Aqua.cpp)
+
+# 指定头文件目录
+target_include_directories(Aqua PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 # 安装目标
 install(TARGETS Aqua DESTINATION lib)
-install(DIRECTORY include/ DESTINATION include)
+install(FILES Aqua.hpp DESTINATION include)
