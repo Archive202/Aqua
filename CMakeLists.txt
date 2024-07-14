@@ -5,8 +5,8 @@ project(Aqua)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # 创建静态库或动态库
-add_library(MyLibrary STATIC src/Tensor.cpp)
+add_library(Aqua STATIC src/Tensor.cpp)
 
 # 安装目标
-install(TARGETS MyLibrary DESTINATION lib)
+install(TARGETS Aqua DESTINATION lib)
 install(DIRECTORY include/ DESTINATION include)
