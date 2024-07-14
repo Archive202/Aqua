@@ -1,46 +1,31 @@
 #include "Tensor.hpp"
-#include <iostream>
-#include <vector>
 
 namespace Aqua {
     template<typename T, size_t N>
-    struct TensorData {
-        using type = std::vector<typename TensorData<T, N-1>::type>;
-    };
-
-    template<typename T>
-    struct TensorData<T, 1> {
-        using type = std::vector<T>;
-    };
+    Tensor<T, N>::Tensor() : data() {}
 
     template<typename T, size_t N>
-    class Tensor {
-    public:
-        using DataType = typename TensorData<T, N>::type;
-        
-        Tensor() : data() {}
-        Tensor(const DataType& initData) : data(initData) {}
+    Tensor<T, N>::Tensor(const DataType& initData) : data(initData) {}
 
-        ~Tensor() {}
-        
-        const DataType& getData() const {
-            return data;
-        }
+    template<typename T, size_t N>
+    Tensor<T, N>::~Tensor() {}
 
-        void disp() const {
-            if constexpr (N == 2) {
-                for (const auto& row : data) {
-                    for (const auto& elem : row) {
-                        std::cout << elem << " ";
-                    }
-                    std::cout << std::endl;
+    template<typename T, size_t N>
+    const typename Tensor<T, N>::DataType& Tensor<T, N>::getData() const {
+        return data;
+    }
+
+    template<typename T, size_t N>
+    void Tensor<T, N>::disp() const {
+        if constexpr (N == 2) {
+            for (const auto& row : data) {
+                for (const auto& elem : row) {
+                    std::cout << elem << " ";
                 }
-            } else {
-                std::cout << "Shape Error!" << std::endl;
+                std::cout << std::endl;
             }
+        } else {
+            std::cout << "Shape Error!" << std::endl;
         }
-
-    private:
-        DataType data;
-    };
+    }
 }
