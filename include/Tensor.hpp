@@ -4,6 +4,10 @@
 #include <vector>
 #include <initializer_list>
 #include <stdexcept>
+#include <functional>
+#include <numeric>
+#include <cmath>
+#include <algorithm>
 
 namespace Aqua {
     template<typename T, size_t N>
@@ -12,8 +16,8 @@ namespace Aqua {
     };
 
     template<typename T>
-    struct TensorData<T, 1> {
-        using type = std::vector<T>;
+    struct TensorData<T, 0> {
+        using type = T;
     };
 
     template<typename T, size_t N>
@@ -57,7 +61,7 @@ namespace Aqua {
         Tensor<T, N> operator / (const Tensor<T, N>& other) const {
             return elementWiseOperation(other, std::divides<T>());
         }
-        
+
         Tensor<T, N> operator % (const Tensor<T, N>& other) const {
             if (N != 2) {
                 throw std::invalid_argument("Matrix multiplication is only defined for 2D tensors.");
@@ -109,8 +113,31 @@ namespace Aqua {
             *this = *this % other;
             return *this;
         }
-        
         /*-----------------------------------------------------------*/
+
+        /*工具*/
+        /*-----------------------------------------------------------*/
+        T max() const {
+            T maximum = std::numeric_limits<T>::min();
+            maxImpl(maximum, data);
+            return maximum;
+        }
+
+        T min() const {
+            T minimum = std::numeric_limits<T>::max();
+            minImpl(minimum, data);
+            return minimum;
+        }
+
+        /*标准化函数*/
+        /*-----------------------------------------------------------*/
+        Tensor<T, N> minmaxNormalize() const {
+            T min = this->min();
+            T max = this->max();
+            return elementWiseOperation(*this, [min, max](T elem, T) {
+                return (elem - min) / (max - min);
+            });
+        }
 
     private:
         DataType data;
@@ -147,20 +174,59 @@ namespace Aqua {
             return result;
         }
 
+        // 广播支持
         template<typename Operation, typename U>
         void elementWiseOperationImpl(std::vector<U>& result, const std::vector<U>& a, const std::vector<U>& b, Operation op) const {
-            if (a.size() != b.size()) {
-                throw std::invalid_argument("Tensors must have the same dimensions for element-wise operations.");
+            size_t size_a = a.size();
+            size_t size_b = b.size();
+
+            if (size_a != size_b && size_a != 1 && size_b != 1) {
+                throw std::invalid_argument("Tensors are not broadcastable.");
             }
-            result.resize(a.size());
-            for (size_t i = 0; i < a.size(); i++) {
-                elementWiseOperationImpl(result[i], a[i], b[i], op);
+
+            size_t max_size = std::max(size_a, size_b);
+            result.resize(max_size);
+
+            for (size_t i = 0; i < max_size; i++) {
+                if (size_a == size_b) {
+                    elementWiseOperationImpl(result[i], a[i], b[i], op);
+                } else if (size_a == 1) {
+                    elementWiseOperationImpl(result[i], a[0], b[i], op);
+                } else if (size_b == 1) {
+                    elementWiseOperationImpl(result[i], a[i], b[0], op);
+                }
             }
         }
 
         template<typename Operation>
         void elementWiseOperationImpl(T& result, const T& a, const T& b, Operation op) const {
             result = op(a, b);
+        }
+
+        template<typename U>
+        void maxImpl(T& maximum, const std::vector<U>& vec) const {
+            for (const auto& elem : vec) {
+                maxImpl(maximum, elem);
+            }
+        }
+
+        void maxImpl(T& maximum, const T& elem) const {
+            if (elem > maximum) {
+                maximum = elem;
+            }
+        }
+
+        template<typename U>
+        void minImpl(T& minimum, const std::vector<U>& vec) const {
+            for (const auto& elem : vec) {
+                minImpl(minimum, elem);
+            }
+        }
+
+        void minImpl(T& minimum, const T& elem) const {
+            if (elem < minimum) {
+                minimum = elem;
+            }
         }
     };
 }
