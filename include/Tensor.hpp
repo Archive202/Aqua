@@ -26,12 +26,18 @@ namespace Aqua {
         using DataType = typename TensorData<T, N>::type;
 
         Tensor() : data() {}
-        Tensor(std::initializer_list<typename TensorData<T, N-1>::type> list) : data(list) {}
+        Tensor(std::initializer_list<typename TensorData<T, N-1>::type> list) : data(list), shape() {
+            calculateShape(data);
+        }
 
         ~Tensor() {}
 
         const DataType& getData() const {
             return data;
+        }
+
+        const std::vector<size_t>& getShape() const {
+            return shape;
         }
 
         template<typename... Args>
@@ -46,7 +52,8 @@ namespace Aqua {
 
         // 运算符重载
         /*-----------------------------------------------------------*/
-        Tensor<T, N> operator + (const Tensor<T, N>& other) const {
+        template<size_t M>  // 为了适配广播，暂时保留
+        Tensor<T, (N > M ? N : M)> operator + (const Tensor<T, M>& other) const {
             return elementWiseOperation(other, std::plus<T>());
         }
 
@@ -117,6 +124,9 @@ namespace Aqua {
 
         /*工具*/
         /*-----------------------------------------------------------*/
+
+        // TODO：写一个广播函数，接收一个initializer_list表示广播后的shape，函数返回一个新的Tensor
+
         T max() const {
             T maximum = std::numeric_limits<T>::min();
             maxImpl(maximum, data);
@@ -141,6 +151,16 @@ namespace Aqua {
 
     private:
         DataType data;
+        std::vector<size_t> shape;
+
+        template<typename U>
+        void calculateShape(const std::vector<U>& vec) {
+            shape.push_back(vec.size());
+            calculateShape(vec[0]);
+        }
+
+        template<typename U>
+        void calculateShape(const U& elem) {}
 
         template<typename U>
         void printVector(const U& elem) const {
@@ -174,27 +194,12 @@ namespace Aqua {
             return result;
         }
 
-        // 广播支持
+        // 运算支持
         template<typename Operation, typename U>
         void elementWiseOperationImpl(std::vector<U>& result, const std::vector<U>& a, const std::vector<U>& b, Operation op) const {
-            size_t size_a = a.size();
-            size_t size_b = b.size();
-
-            if (size_a != size_b && size_a != 1 && size_b != 1) {
-                throw std::invalid_argument("Tensors are not broadcastable.");
-            }
-
-            size_t max_size = std::max(size_a, size_b);
-            result.resize(max_size);
-
-            for (size_t i = 0; i < max_size; i++) {
-                if (size_a == size_b) {
-                    elementWiseOperationImpl(result[i], a[i], b[i], op);
-                } else if (size_a == 1) {
-                    elementWiseOperationImpl(result[i], a[0], b[i], op);
-                } else if (size_b == 1) {
-                    elementWiseOperationImpl(result[i], a[i], b[0], op);
-                }
+            result.resize(a.size());
+            for (size_t i = 0; i < a.size(); ++i) {
+                elementWiseOperationImpl(result[i], a[i], b[i], op);
             }
         }
 
