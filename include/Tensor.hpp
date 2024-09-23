@@ -8,6 +8,7 @@
 #include <numeric>
 #include <cmath>
 #include <algorithm>
+#include <thread>
 
 namespace Aqua {
     template<typename T, size_t N>
@@ -19,6 +20,21 @@ namespace Aqua {
     struct TensorData<T, 0> {
         using type = T;
     };
+
+    template<typename U>
+    void printVector(const U& elem) {
+        std::cout << elem;
+    }
+
+    template<typename U>
+    void printVector(const std::vector<U>& vec) {
+        std::cout << "[";
+        for (const auto& elem : vec) {
+            printVector(elem);
+            if (&elem != &vec.back()) std::cout << ", ";
+        }
+        std::cout << "]";
+    }
 
     template<typename T, size_t N>
     class Tensor {
@@ -41,7 +57,7 @@ namespace Aqua {
         }
 
         template<typename... Args>
-        T& at(Args... args) {
+        auto& at(Args... args) {
             return accessElement(data, args...);
         }
 
@@ -52,8 +68,7 @@ namespace Aqua {
 
         // 运算符重载
         /*-----------------------------------------------------------*/
-        template<size_t M>  // 为了适配广播，暂时保留
-        Tensor<T, (N > M ? N : M)> operator + (const Tensor<T, M>& other) const {
+        Tensor<T, N> operator + (const Tensor<T, N>& other) const {
             return elementWiseOperation(other, std::plus<T>());
         }
 
@@ -162,20 +177,7 @@ namespace Aqua {
         template<typename U>
         void calculateShape(const U& elem) {}
 
-        template<typename U>
-        void printVector(const U& elem) const {
-            std::cout << elem;
-        }
-
-        template<typename U>
-        void printVector(const std::vector<U>& vec) const {
-            std::cout << "[";
-            for (const auto& elem : vec) {
-                printVector(elem);
-                if (&elem != &vec.back()) std::cout << ", ";
-            }
-            std::cout << "]";
-        }
+        
 
         template<typename U, typename... Args>
         auto& accessElement(std::vector<U>& vec, size_t index, Args... args) {
@@ -234,4 +236,13 @@ namespace Aqua {
             }
         }
     };
-}
+
+    // template<typename T, size_t N, typename... Args>
+    // Tensor<T, N> ones(size_t dim, Args... args) {
+    //     Tensor<T, N> ans = Tensor<T, N>();
+    //     for (size_t i = 0; i < dim; i++) {
+    //         ans.at(i) = ones<T, N-1, Args...>(args...).getData();
+    //     }
+    //     return ans;
+    // }
+};
